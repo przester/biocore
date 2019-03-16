@@ -2,19 +2,19 @@
 module Bio.Core.Sequence.Util (
   -- * Functions for nucleotide sequences
   revcompl, revqual, compl
-  -- * Functionality for amino acid sequences                     
+  -- * Functionality for amino acid sequences
   , iupac, iupac', toIUPAC, fromIUPAC, Amino(..)
   -- * Translation of sequences
-  , trans_tbl, translate  
-  -- * Amino acid properties             
-  , Property(..), property_list             
+  , trans_tbl, translate
+  -- * Amino acid properties
+  , Property(..), property_list
   ) where
 
-import Bio.Core.Sequence
+import           Bio.Core.Sequence
 import qualified Data.ByteString.Lazy.Char8 as LC
-import Data.List (unfoldr)
-import Data.Char (toUpper)
-import Data.Maybe (fromJust)
+import           Data.Char                  (toUpper)
+import           Data.List                  (unfoldr)
+import           Data.Maybe                 (fromJust)
 
 -- | Calculate the reverse-complement of a sequence. This only makes
 --   sense for nucleotide data, of course.
@@ -47,7 +47,7 @@ compl 'B' = 'V' --	C or G or T
 compl 'D' = 'H' --	A or G or T
 compl 'H' = 'D' --	A or C or T
 compl 'V' = 'B' --	A or C or G
-compl x = x     --      including '-' for gaps
+compl x   = x     --      including '-' for gaps
 
 -- -- | Read the character at the specified position in the sequence.
 -- {-# INLINE (!) #-}
@@ -63,7 +63,7 @@ compl x = x     --      including '-' for gaps
 --   or otherwise QA the result.
 translate :: SeqData -> Offset -> [Amino]
 translate (SeqData s') o' = unfoldr triples (s',o')
-   where triples (s,o) = 
+   where triples (s,o) =
              if unOff o > LC.length s - 3 then Nothing
              else Just (trans1 (map (LC.index s . unOff) [o,o+1,o+2]),(s,o+3))
 
@@ -76,7 +76,7 @@ trans1 = maybe Xaa id . flip lookup trans_tbl . map (repUT . toUpper)
 -- | List of the standard amino acids.
 data Amino = Ala | Arg | Asn | Asp | Cys | Gln | Glu | Gly
            | His | Ile | Leu | Lys | Met | Phe | Pro | Ser
-           | Thr | Tyr | Trp | Val 
+           | Thr | Tyr | Trp | Val
            | STP | Asx | Glx | Xle | Xaa -- unknowns
      deriving (Show,Eq)
 
@@ -136,13 +136,13 @@ iupac = [(Ala,'A')        ,(Arg,'R')        ,(Asn,'N')
 iupac' :: [(Char,Amino)]
 iupac' = map (\(a,b)->(b,a)) iupac
 
-data Property = Small | Polar | Hydrophobic 
+data Property = Small | Polar | Hydrophobic
               | Aliphatic | Aromatic
               | Tiny | Charged | Positive | Negative
               deriving (Eq,Ord,Read,Show,Enum)
 
 property_list :: [(Property, String)]
-property_list = 
+property_list =
   [ (Small,"AGCSPNDTVC")
   , (Tiny,"AGCS")
   , (Negative,"DE")

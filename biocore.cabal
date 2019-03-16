@@ -22,7 +22,7 @@ Source-repository head
   Location: http://malde.org/~ketil/biohaskell/biocore/
 
 Library
-  Build-Depends:     base >= 3 && < 5, bytestring, stringable
+  Build-Depends:     base >= 3 && < 5, bytestring
   Exposed-Modules:   Bio.Core, Bio.Core.Sequence, Bio.Core.Strand, Bio.Core.Sequence.Util
   Ghc-Options:       -Wall
   Hs-Source-Dirs:    src

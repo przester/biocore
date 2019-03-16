@@ -10,7 +10,8 @@
     of this module should not need to access the underlying data types directly.
 -}
 
-{-# LANGUAGE GeneralizedNewtypeDeriving, DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable         #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Bio.Core.Sequence (
   -- * Data definitions
@@ -23,22 +24,18 @@ module Bio.Core.Sequence (
   -- * Helper functions
   toFasta, toFastaQual, toFastQ,
 
-  module Data.Stringable -- stringable doesn't compile with older GHC
-
   ) where
 
+import qualified Data.ByteString.Lazy       as L
 import qualified Data.ByteString.Lazy.Char8 as LC
-import qualified Data.ByteString.Lazy as L
-import Data.Int
-import Data.Typeable (Typeable)
-import Data.Word
-import Data.String
-import Data.Stringable hiding (length)
-import Data.Monoid
+import           Data.Int
+import           Data.String
+import           Data.Typeable              (Typeable)
+import           Data.Word
 
 -- | Sequence data are lazy bytestrings of ASCII characters.
 newtype SeqData  = SeqData { unSD :: LC.ByteString }
-                 deriving (Eq,Ord,IsString,Show,Typeable,Stringable)
+                 deriving (Eq,Ord,IsString,Show,Typeable,Semigroup)
 
 instance Monoid SeqData where
   mempty = SeqData mempty
@@ -47,7 +44,7 @@ instance Monoid SeqData where
 
 -- | Like sequence data, sequence labels are lazy bytestrings of ASCII characters.
 newtype SeqLabel = SeqLabel { unSL :: LC.ByteString }
-                 deriving (Eq,Ord,IsString,Show,Typeable,Stringable)
+                 deriving (Eq,Ord,IsString,Show,Typeable,Semigroup)
 
 instance Monoid SeqLabel where
   mempty = SeqLabel mempty
@@ -64,7 +61,7 @@ newtype Qual     = Qual { unQual :: Word8 }
 
 -- | Quality data are lazy bytestrings of 'Qual's.
 newtype QualData = QualData { unQD :: L.ByteString }
-                 deriving (Eq,Ord,Show,Typeable,Stringable)
+                 deriving (Eq,Ord,Show,Typeable,Semigroup)
 
 instance Monoid QualData where
   mempty = QualData mempty
@@ -89,10 +86,10 @@ class BioSeq s where
 --  slice     :: s -> (Offset,Offset) -> s  -- ^ Cut a slice of a sequence.
 --  copy      :: s -> s                     -- ^ Create a copy of a sequence.
 
-  seqlabel  :: s -> SeqLabel -- ^ Deprecated.  Instead, use 'seqid' if you 
-                             -- want the unique ID, or 'seqheader' if you 
+  seqlabel  :: s -> SeqLabel -- ^ Deprecated.  Instead, use 'seqid' if you
+                             -- want the unique ID, or 'seqheader' if you
                              -- want the FASTA style header with ID and comments.
-  seqlabel = seqid 
+  seqlabel = seqid
 
 {-# DEPRECATED seqlabel "Warning: 'seqlabel' is deprecated, use 'seqid' or 'seqheader' instead." #-}
 
